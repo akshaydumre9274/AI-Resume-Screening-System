@@ -26,7 +26,16 @@ public class UploadController {
     public ResponseEntity<String> uploadResumes(
             @RequestParam("files") MultipartFile[] files) {
 
-        return ResponseEntity.ok(
-                files.length + " Resumes Uploaded Successfully");
+        StringBuilder result = new StringBuilder();
+
+        result.append("Uploaded Resumes\n\n");
+
+        for (MultipartFile file : files) {
+            result.append(file.getOriginalFilename()).append("\n");
+        }
+
+        result.append("\nTotal Resumes : ").append(files.length);
+
+        return ResponseEntity.ok(result.toString());
     }
 }
