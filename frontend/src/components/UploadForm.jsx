@@ -1,8 +1,61 @@
 import { useState } from "react";
+import axios from "axios";
 
-function UploadForm({ onAnalyze }) {
+function UploadForm({ analyze }) {
   const [jobFile, setJobFile] = useState(null);
   const [resumeFiles, setResumeFiles] = useState([]);
+
+  const uploadAndAnalyze = async () => {
+    try {
+      if (!jobFile) {
+        alert("Please select a Job Description.");
+        return;
+      }
+
+      if (resumeFiles.length === 0) {
+        alert("Please select Resume files.");
+        return;
+      }
+
+      // Upload Job Description
+      const jobData = new FormData();
+      jobData.append("file", jobFile);
+
+      await axios.post(
+        "http://localhost:8080/upload/job",
+        jobData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      // Upload Resumes
+      const resumeData = new FormData();
+
+      resumeFiles.forEach((file) => {
+        resumeData.append("files", file);
+      });
+
+      await axios.post(
+        "http://localhost:8080/upload/resumes",
+        resumeData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      // Call AI Ranking API
+      await analyze();
+
+    } catch (error) {
+      console.error(error);
+      alert("Upload Failed!");
+    }
+  };
 
   return (
     <div className="card">
@@ -27,7 +80,7 @@ function UploadForm({ onAnalyze }) {
       <br />
       <br />
 
-      <button onClick={onAnalyze}>
+      <button onClick={uploadAndAnalyze}>
         Analyze Resumes
       </button>
 
